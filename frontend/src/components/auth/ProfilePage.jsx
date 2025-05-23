@@ -114,8 +114,35 @@ function ProfilePage() {
             <Typography variant="h6">Details</Typography>
             <Typography><strong>Email:</strong> {userData.email}</Typography>
             <Typography><strong>Role:</strong> {userData.role}</Typography>
-            <hr />
-            <Box component="form" onSubmit={handleUpdateProfile} sx={{ mt: 2 }}>
+            
+            <hr style={{ margin: '16px 0' }} />
+
+            <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>Membership Details</Typography>
+            {authState.user && authState.user.membershipDetails ? (
+              <Box>
+                <Typography>
+                  <strong>Type:</strong> {authState.user.membershipDetails.membershipType}
+                </Typography>
+                <Typography>
+                  <strong>Status:</strong> {authState.user.membershipDetails.status}
+                </Typography>
+                <Typography>
+                  <strong>Start Date:</strong> 
+                  {new Date(authState.user.membershipDetails.startDate).toLocaleDateString()}
+                </Typography>
+                <Typography>
+                  <strong>End Date:</strong> 
+                  {new Date(authState.user.membershipDetails.endDate).toLocaleDateString()}
+                </Typography>
+              </Box>
+            ) : (
+              <Typography>No active membership.</Typography>
+            )}
+
+            <hr style={{ margin: '16px 0' }} />
+            
+            <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>Update Profile</Typography>
+            <Box component="form" onSubmit={handleUpdateProfile} sx={{ mt: 1 }}>
               <TextField
                 label="First Name"
                 name="firstName"
