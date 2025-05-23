@@ -70,12 +70,13 @@ function ProfilePage() {
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
       const updatedData = await response.json();
-      setUserData(prevData => ({ ...prevData, ...updatedData.user })); // Assuming API returns { user: {} }
-      setFormData({ // Update formData as well to reflect changes if API returns partial data
-        firstName: updatedData.user.firstName || '',
-        lastName: updatedData.user.lastName || '',
-        phoneNumber: updatedData.user.phoneNumber || '',
-        address: updatedData.user.address || '',
+      // Assuming the API directly returns the updated user object
+      setUserData(updatedData); 
+      setFormData({ 
+        firstName: updatedData.firstName || '',
+        lastName: updatedData.lastName || '',
+        phoneNumber: updatedData.phoneNumber || '',
+        address: updatedData.address || '',
       });
       setSuccessMessage(updatedData.message || 'Profile updated successfully!');
     } catch (err) {

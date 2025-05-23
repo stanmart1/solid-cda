@@ -14,6 +14,11 @@ import PaymentHistoryPage from './components/payments/PaymentHistoryPage'; // Im
 import AnnouncementsPage from './components/announcements/AnnouncementsPage'; // Import AnnouncementsPage
 import ActivePollsPage from './components/voting/ActivePollsPage'; // Import ActivePollsPage
 import PollDetailsPage from './components/voting/PollDetailsPage'; // Import PollDetailsPage
+import SubmitComplaintPage from './components/complaints/SubmitComplaintPage'; // Import SubmitComplaintPage
+import MyComplaintsPage from './components/complaints/MyComplaintsPage'; // Import MyComplaintsPage
+import ComplaintDetailsPage from './components/complaints/ComplaintDetailsPage'; // Import ComplaintDetailsPage
+import ViewMembershipApplicationsPage from './components/admin/ViewMembershipApplicationsPage'; // Import Admin Page
+import MembershipApplicationDetailsPage from './components/admin/MembershipApplicationDetailsPage'; // Import Admin Detail Page
 import './App.css'; // Keep App.css or remove if not needed
 
 function App() {
@@ -54,6 +59,16 @@ function App() {
               <Link to="/polls">Voting Polls</Link> {/* Temporary Link */}
             </li>
             <li>
+              <Link to="/submit-complaint">Submit Complaint</Link> {/* Temporary Link */}
+            </li>
+            <li>
+              <Link to="/my-complaints">My Complaints</Link> {/* Temporary Link */}
+            </li>
+            {/* Admin Links Placeholder - ideally conditionally rendered based on role */}
+            <li>
+              <Link to="/admin/membership-applications">Admin: Membership Apps</Link> {/* Temporary Admin Link */}
+            </li>
+            <li>
               <LogoutButton />
             </li>
           </ul>
@@ -76,6 +91,13 @@ function App() {
             <Route path="/announcements" element={<AnnouncementsPage />} />
             <Route path="/polls" element={<ActivePollsPage />} />
             <Route path="/poll/:pollId" element={<PollDetailsPage />} />
+            <Route path="/submit-complaint" element={<SubmitComplaintPage />} />
+            <Route path="/my-complaints" element={<MyComplaintsPage />} />
+            <Route path="/complaint/:complaintId" element={<ComplaintDetailsPage />} />
+            {/* Admin Routes */}
+            {/* These should also be protected by an admin role check in ProtectedRoute or a specialized AdminRoute */}
+            <Route path="/admin/membership-applications" element={<ViewMembershipApplicationsPage />} />
+            <Route path="/admin/application/:applicationId" element={<MembershipApplicationDetailsPage />} />
             {/* Add other protected routes here as needed */}
           </Route>
         </Routes>

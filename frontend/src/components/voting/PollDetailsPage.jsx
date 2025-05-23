@@ -32,7 +32,8 @@ function PollDetailsPage() {
         throw new Error(errorData.message || `HTTP error fetching results! status: ${response.status}`);
       }
       const resultsData = await response.json();
-      setPollResults(resultsData.results || []); // Assuming API returns { results: [{optionText, votes, percentage}] }
+      // Assuming resultsData is the poll object with options array having vote counts
+      setPollResults(resultsData.options || []); 
     } catch (err) {
       setResultsError(err.message);
       console.error("Error fetching poll results:", err);
@@ -53,7 +54,7 @@ function PollDetailsPage() {
           throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setPoll(data.poll); 
+        setPoll(data); // Assuming backend returns the poll object directly
 
         // If poll is closed or user has already voted (assuming userVoted flag comes from API)
         // For now, let's assume if it's closed, we fetch results.
@@ -181,29 +182,34 @@ function PollDetailsPage() {
         
         {/* Results Section */}
         {resultsError && <Alert severity="error" sx={{ my: 2 }}>{resultsError}</Alert>}
-        {showResultsSection && pollResults && (
+        {showResultsSection && pollResults && poll && ( // Ensure poll is also available for option texts
           <Box sx={{ mt: 3 }}>
             <Typography variant="h5" gutterBottom>Poll Results</Typography>
-            {pollResults.map((resultOption, index) => (
-              <Box key={index} sx={{ mb: 1, p: 1, border: '1px solid #eee', borderRadius: '4px' }}>
-                <Typography variant="body1">
-                  {resultOption.optionText}: <strong>{resultOption.votes} votes</strong> 
-                  ({resultOption.percentage?.toFixed(1) || '0.0'}%)
-                </Typography>
-                {/* Basic bar representation */}
-                <Box sx={{ width: '100%', backgroundColor: '#f0f0f0', borderRadius: '4px', mt: 0.5 }}>
-                  <Box 
-                    sx={{ 
-                      width: `${resultOption.percentage || 0}%`, 
-                      backgroundColor: 'primary.main', 
-                      height: '20px', 
-                      borderRadius: '4px',
-                      transition: 'width 0.5s ease-in-out'
-                    }} 
-                  />
+            {pollResults.map((resultOption, index) => {
+              // Find the original option text from the poll state, as results might only have IDs
+              const originalOption = poll.options.find(opt => opt._id === resultOption._id || opt.optionText === resultOption.optionText);
+              const optionText = originalOption ? originalOption.optionText : resultOption.optionText; // Fallback if not found
+              return (
+                <Box key={resultOption._id || index} sx={{ mb: 1, p: 1, border: '1px solid #eee', borderRadius: '4px' }}>
+                  <Typography variant="body1">
+                    {optionText}: <strong>{resultOption.votes} votes</strong> 
+                    ({resultOption.percentage?.toFixed(1) || '0.0'}%)
+                  </Typography>
+                  {/* Basic bar representation */}
+                  <Box sx={{ width: '100%', backgroundColor: '#f0f0f0', borderRadius: '4px', mt: 0.5 }}>
+                    <Box 
+                      sx={{ 
+                        width: `${resultOption.percentage || 0}%`, 
+                        backgroundColor: 'primary.main', 
+                        height: '20px', 
+                        borderRadius: '4px',
+                        transition: 'width 0.5s ease-in-out'
+                      }} 
+                    />
+                  </Box>
                 </Box>
-              </Box>
-            ))}
+              );
+            })}
           </Box>
         )}
         

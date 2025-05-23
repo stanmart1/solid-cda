@@ -37,9 +37,19 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
-        // Assuming the user data is part of the response, e.g., data.user
-        // If not, user might need to be fetched in a separate call or is just the email/id
-        setAuthState({ token: data.token, user: data.user || { email: credentials.email } }); // Store token and user info
+        // Assuming backend login response includes these fields directly
+        setAuthState({ 
+          token: data.token, 
+          user: { 
+            _id: data._id, 
+            firstName: data.firstName, 
+            lastName: data.lastName, 
+            email: data.email, 
+            role: data.role,
+            // Include membershipDetails if it's part of the direct login response, otherwise it's fetched/set elsewhere
+            membershipDetails: data.membershipDetails || null 
+          } 
+        });
         return data; // Return data for potential use in component
       } else {
         throw new Error(data.message || 'Login failed');

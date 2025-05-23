@@ -25,7 +25,7 @@ function ActivePollsPage() {
           throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setPolls(data.polls || []); // Assuming API returns { polls: [] }
+        setPolls(data || []); // Assuming backend returns array directly
       } catch (err) {
         setError(err.message);
         console.error("Error fetching active polls:", err);

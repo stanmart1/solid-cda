@@ -25,7 +25,7 @@ function AnnouncementsPage() {
           throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setAnnouncements(data.announcements || []); // Assuming API returns { announcements: [] }
+        setAnnouncements(data || []); // Assuming backend returns array directly
       } catch (err) {
         setError(err.message);
         console.error("Error fetching announcements:", err);
