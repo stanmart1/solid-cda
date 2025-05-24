@@ -103,13 +103,7 @@ const initiatePayment = asyncHandler(async (req, res) => {
           paymentRecordId: paymentRecord._id,
           transactionReference: paymentRecord.transactionReference,
       });
-  } else {
-    paymentRecord.status = 'failed';
-    paymentRecord.notes = `Invalid payment method: ${paymentMethod}`;
-    await paymentRecord.save();
-    res.status(400);
-    throw new Error('Invalid payment method selected.');
-  } else if (paymentMethod === 'Paystack') {
+  } else if (paymentMethod === 'Paystack') { // Paystack moved into the main chain
     // Ensure amount is in Kobo for Paystack
     const amountInKobo = Math.round(amount * 100);
     const callback_url = paymentConfig.paystack.callbackUrl || `${req.protocol}://${req.get('host')}/api/payments/paystack/callback`; // Default if not in .env
@@ -147,12 +141,13 @@ const initiatePayment = asyncHandler(async (req, res) => {
       res.status(500);
       throw new Error(error.message || 'Failed to initiate payment with Paystack.');
     }
-  } else { // Fallback for any other unexpected paymentMethod
+  } else { // This is the final fallback for any other unhandled payment methods
     paymentRecord.status = 'failed';
-    paymentRecord.notes = `Unsupported payment method: ${paymentMethod}`;
+    // Changed message to 'Unsupported' as it's a catch-all now
+    paymentRecord.notes = `Unsupported payment method: ${paymentMethod}`; 
     await paymentRecord.save();
     res.status(400);
-    throw new Error('Unsupported payment method selected.');
+    throw new Error('Unsupported payment method selected.'); // Changed message
   }
 });
 

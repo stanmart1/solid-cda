@@ -1,21 +1,19 @@
 const mongoose = require('mongoose');
-const { connectDB, disconnectDB } = require('../config/db'); // Adjust path if necessary
-const User = require('../models/userModel'); // Import models to clear them
+const { MongoMemoryServer } = require('mongodb-memory-server');
+
+let mongoServer;
 
 // Optional: Increase timeout for database operations if needed, though Jest config already has testTimeout
 // jest.setTimeout(30000); 
 
 beforeAll(async () => {
-  // Ensure NODE_ENV is set to 'test' which should be handled by cross-env in package.json script
-  // but can be double-checked here.
-  if (process.env.NODE_ENV !== 'test') {
-    // console.warn("NODE_ENV is not 'test'. Ensure your test script sets it correctly.");
-    // Potentially force it, though it's better if the script handles it:
-    // process.env.NODE_ENV = 'test';
-    // Or throw an error:
-    // throw new Error("NODE_ENV must be 'test' for running tests.");
-  }
-  await connectDB();
+  mongoServer = await MongoMemoryServer.create();
+  const mongoUri = mongoServer.getUri();
+  await mongoose.connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    // Remove other options not relevant for in-memory or deprecated
+  });
 });
 
 afterEach(async () => {
@@ -24,10 +22,14 @@ afterEach(async () => {
   const collections = mongoose.connection.collections;
   for (const key in collections) {
     const collection = collections[key];
-    await collection.deleteMany({});
+    // Added a check to ensure collection exists before trying to delete
+    if (collection && typeof collection.deleteMany === 'function') {
+      await collection.deleteMany({});
+    }
   }
 });
 
 afterAll(async () => {
-  await disconnectDB();
+  await mongoose.disconnect();
+  await mongoServer.stop();
 });

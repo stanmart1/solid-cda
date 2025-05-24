@@ -1,5 +1,5 @@
-const dotenv = require('dotenv');
-dotenv.config();
+// const dotenv = require('dotenv'); // dotenv will be called by the application entry point or test setup
+// dotenv.config(); // Removed to allow environment to be set by entry point or test setup
 
 module.exports = {
   flutterwave: {

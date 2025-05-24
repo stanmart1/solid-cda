@@ -1,10 +1,14 @@
 const request = require('supertest');
 const express = require('express');
-const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server'); // For in-memory DB (alternative to setup.js)
+const mongoose = require('mongoose'); // Keep mongoose for assertions if needed, or model interactions
+// const { MongoMemoryServer } = require('mongodb-memory-server'); // Removed, global setup handles this
 const User = require('../models/userModel');
 const authRoutes = require('../routes/authRoutes');
 const { errorHandler } = require('../middleware/errorMiddleware');
+const notificationService = require('../services/notificationService'); // Import to mock
+
+// Mock notificationService
+jest.mock('../services/notificationService');
 const dotenv = require('dotenv');
 
 // Load .env.test variables
@@ -16,28 +20,40 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use(errorHandler); // Add error handler to catch errors thrown by controllers
 
-let mongoServer;
+// let mongoServer; // Removed
 
-beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const mongoUri = mongoServer.getUri();
-  await mongoose.connect(mongoUri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-});
+// beforeAll(async () => { // Removed - Handled by global setup.js
+//   mongoServer = await MongoMemoryServer.create();
+//   const mongoUri = mongoServer.getUri();
+//   await mongoose.connect(mongoUri, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   });
+// });
 
-afterEach(async () => {
-  await User.deleteMany({}); // Clear User collection after each test
-});
+// afterEach(async () => { // Removed - Handled by global setup.js, which clears all collections
+//   // await User.deleteMany({}); // This specific cleanup can be removed if global setup clears all collections
+// });
 
-afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
-});
+// afterAll(async () => { // Removed - Handled by global setup.js
+//   await mongoose.disconnect();
+//   await mongoServer.stop();
+// });
 
 
 describe('Auth Routes - Integration Tests', () => {
+  beforeEach(() => {
+    // Reset mocks before each test if notificationService was already mocked at top level
+    // For jest.mock at the top, this ensures a clean state for each test.
+    if (notificationService.triggerWelcomeNotification.mockClear) {
+        notificationService.triggerWelcomeNotification.mockClear();
+    }
+    // Add other notification types if they exist and are called by auth routes
+    // e.g., if you have password reset notifications triggered by auth routes:
+    // if (notificationService.triggerPasswordResetNotification && notificationService.triggerPasswordResetNotification.mockClear) {
+    //    notificationService.triggerPasswordResetNotification.mockClear(); 
+    // }
+  });
   describe('POST /api/auth/register', () => {
     it('should register a new user successfully and return user data with a token', async () => {
       const userData = {
